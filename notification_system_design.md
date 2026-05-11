@@ -191,3 +191,19 @@ function process_email_job(job_data):
         # Message queues automatically catch errors and retry failed jobs
         message_queue.retry_later(job_data)
 ```
+
+
+## Stage 6
+
+**Implementation Approach:**
+To determine the priority of incoming notifications, I implemented a weighting system where Placements are assigned 3 points, Results 2 points, and Events 1 point. The Python script fetches the live data using the provided API token, assigns the corresponding weight to each item, and parses the string timestamp into a sortable `datetime` object. 
+
+The list is then sorted in descending order—first by the highest weight, and then by the most recent timestamp to break any ties. Finally, the list is sliced to return only the top 10 most critical notifications.
+
+**Output Screenshots:**
+
+*Priority Inbox Terminal Output:*
+![Stage 6 Priority Inbox Output](./notification_app_be/stage6_output.png)
+
+*Postman Access Token Validation:*
+![Postman Access Token](./notification_app_be/access_token.png)
