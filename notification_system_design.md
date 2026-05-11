@@ -92,3 +92,27 @@ UPDATE app_notifications
 SET is_viewed = TRUE 
 WHERE record_id = 'a1b2c3d4-e5f6-7890' AND recipient_id = 1042;
 ```
+
+---
+
+## Stage 3
+
+**1. Query Accuracy and Performance Bottleneck:**
+The provided query (`SELECT * FROM notifications WHERE studentID = 1042 AND isRead = false ORDER BY createdAt ASC;`) is logically accurate for fetching unread notifications. However, it is performing extremely slowly because it relies on a **Full Table Scan**. Since there are 5,000,000 notifications and no relevant indexes, the database engine is forced to inspect every single row sequentially to find the matching records for student `1042`.
+
+**2. Proposed Optimization and Computation Cost:**
+I would implement a composite B-Tree index on the columns `(studentID, isRead, createdAt)`. 
+* **Current Computation Cost:** $O(N)$, where $N$ is the total number of rows in the table.
+* **Optimized Computation Cost:** $O(\log N)$ to traverse the index tree, followed by $O(K)$ to fetch the $K$ matching rows. This will drastically reduce query execution time.
+
+**3. Evaluating "Index Every Column" Advice:**
+Adding an index to every column is **highly ineffective and counterproductive**. 
+* **Storage Bloat:** Indexes consume significant disk space.
+* **Write Degradation:** Every time a new notification is inserted (which happens frequently), every single index must be updated. This creates a massive performance penalty on write operations (`INSERT`, `UPDATE`, `DELETE`). Indexes should only be strategically applied to columns used frequently in `WHERE`, `ORDER BY`, or `JOIN` clauses.
+
+**4. Recent Placement Notifications Query:**
+```sql
+SELECT studentID
+FROM notifications
+WHERE notificationType = 'Placement'
+    AND createdAt >= NOW() - INTERVAL '7 days';
