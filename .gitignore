@@ -1,0 +1,18 @@
+# Node & Frontend (React/Next)
+node_modules/
+.next/
+out/
+build/
+.env*.local
+
+# Python & Backend
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+env/
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
