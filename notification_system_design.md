@@ -116,3 +116,29 @@ SELECT studentID
 FROM notifications
 WHERE notificationType = 'Placement'
     AND createdAt >= NOW() - INTERVAL '7 days';
+```
+
+
+---
+
+## Stage 4
+
+**The Bottleneck:**
+Fetching notifications from the primary database on every single page load for 50,000+ students creates an unsustainable number of read operations. This overwhelms database connections and severely degrades the user experience.
+
+**Proposed Performance Strategies & Tradeoffs:**
+
+**1. In-Memory Server Caching (Redis)**
+Instead of querying PostgreSQL on every page navigation, we store the recent notifications payload and the "unread count" for active users in a Redis cache. The API serves the data directly from RAM.
+* **Pros:** Blazing fast read times (sub-millisecond); massively protects the primary database from read-heavy traffic.
+* **Tradeoffs:** Increases infrastructure complexity and costs. Requires careful "cache invalidation" logic (e.g., when a student reads a message, we must instantly update the cache so they don't see stale, outdated data).
+
+**2. Global Frontend State & Server-Sent Events (SSE)**
+We change the frontend behavior. The client fetches the notifications *once* upon logging in and stores them in a global state manager (like React Context or Redux). As the user navigates between pages, the UI reads from the local state, making zero new API calls. New alerts are pushed silently to this state via SSE.
+* **Pros:** Eliminates 90% of repetitive API calls; creates a buttery-smooth, instant UI experience.
+* **Tradeoffs:** The server must maintain thousands of open SSE connections simultaneously. If the user refreshes the browser tab entirely, the state is wiped and a fresh DB fetch is required.
+
+**3. HTTP Caching Mechanisms (ETags)**
+The server sends an `ETag` (a unique hash of the inbox state) with the notifications. On the next page load, the browser sends that ETag back. If no new notifications exist, the API simply returns a `304 Not Modified` status without querying the database.
+* **Pros:** Very easy to implement; uses standard built-in browser features.
+* **Tradeoffs:** The client still has to make an HTTP request over the network for validation, so it doesn't completely eliminate server traffic like the Global State approach does.
