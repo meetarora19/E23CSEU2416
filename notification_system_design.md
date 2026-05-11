@@ -207,3 +207,24 @@ The list is then sorted in descending order—first by the highest weight, and t
 
 *Postman Access Token Validation:*
 ![Postman Access Token](./notification_app_be/access_token.png)
+
+---
+
+## Stage 7
+
+**Frontend Implementation Details:**
+The frontend was developed using **Next.js** and **React**, focusing on a clean, responsive user experience. Following "Production Grade" standards, the application uses **Native CSS** (no prohibited external libraries) for all styling.
+
+**Key Features:**
+* **Multi-Route Architecture:** * `Main Feed (/)`: Displays a complete list of campus notifications fetched from the live API.
+  * `Priority View (/priority)`: Utilizes API query parameters (`?limit=5`) to display only the most critical upcoming alerts.
+* **Responsive Layout:** The interface utilizes Flexbox and media queries to ensure usability across mobile and desktop viewports.
+* **Error Resilience:** Implemented a fail-safe mechanism that provides mock data placeholders in the event of API rate-limiting or CORS restrictions, ensuring the UI remains functional for the end-user.
+
+**Frontend Screenshots:**
+
+*Main Dashboard:*
+![Main Feed](./notification_app_fe/Main_page_output.png)
+
+*Priority Alerts:*
+![Priority View](./notification_app_fe/Priority_page_output.png)

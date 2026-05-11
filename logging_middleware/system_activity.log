@@ -1,0 +1,2 @@
+2026-05-11 13:53:45,963 - INFO - [POST] /auth | Status: 200 | Info: User Authenticated
+2026-05-11 13:53:45,963 - INFO - [GET] /notifications | Status: 200 | Info: Fetched 10 notifications
